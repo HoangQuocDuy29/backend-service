@@ -1,5 +1,6 @@
 package vn.tayjava.controller.request;
 
+import com.fasterxml.jackson.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 
 @Getter
+@Setter
 @ToString
 public class UserCreationRequest implements Serializable {
     private String firstName;
@@ -22,4 +24,6 @@ public class UserCreationRequest implements Serializable {
     private String phone;
     private UserType type;
     private List<AddressRequest> addresses; // home,office
+
+
 }
