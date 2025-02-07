@@ -100,6 +100,7 @@ public class UserController {
         return result;
     }
 
+
     @Operation(summary = "Delete user", description = "API activate user from database")
     @DeleteMapping("/del/{userId}")
     public Map<String, Object> deleteUser(@PathVariable Long userId) {
