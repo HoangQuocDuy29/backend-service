@@ -2,9 +2,11 @@ package vn.tayjava.service.impl;
 
 import lombok.*;
 import lombok.extern.slf4j.*;
+import org.springframework.data.domain.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
+import org.springframework.util.*;
 import vn.tayjava.common.*;
 import vn.tayjava.controller.request.*;
 import vn.tayjava.controller.response.*;
@@ -14,6 +16,7 @@ import vn.tayjava.repository.*;
 import vn.tayjava.service.*;
 
 import java.util.*;
+import java.util.regex.*;
 
 
 @Service
@@ -27,12 +30,60 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserPageResponse findAll(String keyword, String sort, int page, int size) {
-        return null;
+        log.info("findAll start");
+
+        // Sorting
+        Sort.Order order = new Sort.Order(Sort.Direction.ASC, "id");
+        if (StringUtils.hasLength(sort)) {
+            Pattern pattern = Pattern.compile("(\\w+?)(:)(.*)"); // tencot:asc|desc
+            Matcher matcher = pattern.matcher(sort);
+            if (matcher.find()) {
+                String columnName = matcher.group(1);
+                if (matcher.group(3).equalsIgnoreCase("asc")) {
+                    order = new Sort.Order(Sort.Direction.ASC, columnName);
+                } else {
+                    order = new Sort.Order(Sort.Direction.DESC, columnName);
+                }
+            }
+        }
+
+        // Xu ly truong hop FE muon bat dau voi page = 1
+        int pageNo = 0;
+        if (page > 0) {
+            pageNo = page - 1;
+        }
+
+        // Paging
+        Pageable pageable = PageRequest.of(pageNo, size, Sort.by(order));
+
+        Page<UserEntity> entityPage;
+
+        if (StringUtils.hasLength(keyword)) {
+            keyword = "%" + keyword.toLowerCase() + "%";
+            entityPage = userRepository.searchByKeyword(keyword, pageable);
+        } else {
+            entityPage = userRepository.findAll(pageable);
+        }
+
+        return getUserPageResponse(page, size, entityPage);
     }
 
     @Override
     public UserResponse findById(Long id) {
-        return null;
+        log.info("Find user by id: {}", id);
+
+        UserEntity userEntity = getUserEntity(id);
+
+        return UserResponse.builder()
+                .id(id)
+                .firstName(userEntity.getFirstName())
+                .lastName(userEntity.getLastName())
+                .gender(userEntity.getGender())
+                .birthday(userEntity.getBirthday())
+                .username(userEntity.getUsername())
+                .phone(userEntity.getPhone())
+                .email(userEntity.getEmail())
+                .build();
     }
 
     @Override
@@ -163,5 +214,38 @@ public class UserServiceImpl implements UserService {
 
     private UserEntity getUserEntity(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    /**
+     * Convert EserEntities to UserResponse
+     *
+     * @param page
+     * @param size
+     * @param userEntities
+     * @return
+     */
+    private static UserPageResponse getUserPageResponse(int page, int size, Page<UserEntity> userEntities) {
+        log.info("Convert User Entity Page");
+
+        List<UserResponse> userList = userEntities.stream().map(entity -> UserResponse.builder()
+                .id(entity.getId())
+                .firstName(entity.getFirstName())
+                .lastName(entity.getLastName())
+                .gender(entity.getGender())
+                .birthday(entity.getBirthday())
+                .username(entity.getUsername())
+                .phone(entity.getPhone())
+                .email(entity.getEmail())
+                .build()
+        ).toList();
+
+        UserPageResponse response = new UserPageResponse();
+        response.setPageNumber(page);
+        response.setPageSize(size);
+        response.setTotalElements(userEntities.getTotalElements());
+        response.setTotalPages(userEntities.getTotalPages());
+        response.setUsers(userList);
+
+        return response;
     }
 }
