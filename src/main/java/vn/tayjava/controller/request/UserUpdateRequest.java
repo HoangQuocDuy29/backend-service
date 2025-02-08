@@ -1,5 +1,6 @@
 package vn.tayjava.controller.request;
 
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.ToString;
 import vn.tayjava.common.Gender;
@@ -11,12 +12,17 @@ import java.util.List;
 @Getter
 @ToString
 public class UserUpdateRequest implements Serializable {
+    @NotNull(message = "Không đc bỏ trống Id")
+    @Min(value = 1, message = "ID phải có giá trị > 0")
     private Long id;
+    @NotBlank(message = "Không đc bỏ trống firstName")
     private String firstName;
+    @NotBlank(message = "Không đc bỏ trống lastName")
     private String lastName;
     private Gender gender;
     private Date birthday;
     private String username;
+    @Email(message = "Email invalid")
     private String email;
     private String phone;
     private List<AddressRequest> addresses;

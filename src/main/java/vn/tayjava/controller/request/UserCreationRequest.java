@@ -1,6 +1,7 @@
 package vn.tayjava.controller.request;
 
 import com.fasterxml.jackson.annotation.*;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -15,11 +16,14 @@ import java.util.List;
 @Setter
 @ToString
 public class UserCreationRequest implements Serializable {
+    @NotBlank(message = "Không đc bỏ trống")
     private String firstName;
+    @NotBlank(message = "Không đc bỏ trống")
     private String lastName;
     private Gender gender;
     private Date birthday;
     private String username;
+    @Email(message = "Email invalid")
     private String email;
     private String phone;
     private UserType type;
