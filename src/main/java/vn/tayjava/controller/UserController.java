@@ -2,6 +2,7 @@ package vn.tayjava.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.*;
 import jakarta.validation.*;
 import jakarta.validation.constraints.*;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import vn.tayjava.controller.response.UserPageResponse;
 import vn.tayjava.controller.response.UserResponse;
 import vn.tayjava.service.UserService;
 
+import java.io.*;
 import java.util.*;
 
 @RestController
@@ -29,6 +31,7 @@ import java.util.*;
 public class UserController {
 
     private final UserService userService;
+
 
     @Operation(summary = "Get user list", description = "API retrieve user from database")
     @GetMapping("/list")
@@ -102,6 +105,20 @@ public class UserController {
         result.put("data", "");
 
         return result;
+    }
+
+    @Operation(summary = "Confirm Email", description = "Confirm email for account")
+    @GetMapping("/confirm-email")
+    public void confirmEmail(@RequestParam String secretCode, HttpServletResponse response) throws IOException, IOException {
+        log.info("Confirm email for account with secretCode: {}", secretCode);
+
+        try {
+            // TODO check or compare secret code from db
+        } catch (Exception e) {
+            log.error("Verification fail", e.getMessage(), e);
+        } finally {
+            response.sendRedirect("https://facebook.com/me");
+        }
     }
 
 

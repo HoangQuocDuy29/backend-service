@@ -16,8 +16,10 @@ spring:
     hibernate:
       ddl-auto: none
   sendgrid:
-    api-key:
+    api-key: ${SENDGRID_API_KEY}
     fromEmail : quocduyhoang42@gmail.com
+    templateId : d-bfbe587cf47849e8ad3a6e8c8ba6feab
+    verificationLink: http://localhost:8080/user/confirm-email
 
 
 # application-dev.yml

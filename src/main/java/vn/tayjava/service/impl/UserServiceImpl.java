@@ -15,6 +15,7 @@ import vn.tayjava.model.*;
 import vn.tayjava.repository.*;
 import vn.tayjava.service.*;
 
+import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 
@@ -27,6 +28,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @Override
     public UserPageResponse findAll(String keyword, String sort, int page, int size) {
@@ -139,6 +141,12 @@ public class UserServiceImpl implements UserService {
             log.info("Saved addresses: {}", addresses);
         }
 
+        // send email confirm
+        try {
+            emailService.emailVerification(req.getEmail(), req.getUsername());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return user.getId();
     }
 
